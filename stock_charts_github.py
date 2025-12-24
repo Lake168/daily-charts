@@ -12,7 +12,7 @@ import os
 import pandas as pd
 
 # Configuration - Using environment variables for security
-TICKERS = ['XBI', 'HOOD', 'UBER', 'CIBR', 'NLR', 'RKLB', 'COST', 'QQQM', 'SPLG', 'HUMN', 'KOID', 'GOOGL', 'NVDA', 'RSP', 'PLTR']
+TICKERS = ['XBI', 'HOOD', 'UBER', 'BTC', 'HYPE', 'RKLB', 'COST', 'NDX', 'SPX', 'LLY', 'SIDU', 'GOOGL', 'NVDA', 'QCLS', 'PLTR']
 
 # Get email configuration from environment variables (set as GitHub Secrets)
 EMAIL_CONFIG = {
