@@ -1,0 +1,65 @@
+name: Stock Chart Email Reporter
+
+on:
+  schedule:
+    # Run every weekday (Monday-Friday) at 9:00 AM EST
+    # Note: GitHub Actions uses UTC time, so 9:00 AM EST = 2:00 PM UTC (or 1:00 PM during DST)
+    - cron: '30 21 * * 1-5'  # Adjust this based on your timezone
+    
+    # Alternative schedules (uncomment the one you want):
+    # Daily at 9:00 AM EST (including weekends):
+    # - cron: '0 14 * * *'
+    
+    # Every Monday at 8:00 AM EST:
+    # - cron: '0 13 * * 1'
+    
+    # Twice daily (9 AM and 4 PM EST):
+    # - cron: '0 13 * * 1-5'
+    # - cron: '0 20 * * 1-5'
+    
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  send-stock-charts:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install yfinance matplotlib pandas mplfinance schedule exchange_calendars pytz
+    
+    - name: Run stock chart script
+      env:
+        EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
+        SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+        SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      run: |
+        python stock_charts_github.py
+    
+    - name: Upload charts as artifacts (optional)
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: stock-charts-${{ github.run_number }}
+        path: charts/
+        retention-days: 30
